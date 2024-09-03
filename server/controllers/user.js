@@ -1,9 +1,13 @@
 import uploadFilesToCloudinary from "../services/fileUpload.js";
 import { UserModel } from "../models/userModel.js";
+import { ChatModel } from "../models/chatModel.js";
+import { RequestModel } from "../models/requestModel.js";
+import { emitEvent } from "../utils/features.js";
+
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const createUser = async (req, res) => {
+export const createUser = async (req, res) => {
   try {
     const { name, username, email, password, bio } = req.body;
     const file = req.file;
@@ -72,9 +76,11 @@ const createUser = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { validator, password } = req.body;
+
+    console.log(req.body);
 
     if (!validator || !password) {
       return res.status(404).json({
@@ -133,7 +139,7 @@ const login = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
+export const logout = async (req, res) => {
   try {
     res.clearCookie("token", { path: "/" });
     return res.status(200).json({
@@ -150,4 +156,260 @@ const logout = async (req, res) => {
   }
 };
 
-export { createUser, login, logout };
+//----------------------------------------------------------------------
+
+export const getMyProfile = async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.user);
+
+    if (!user) return next(new ErrorHandler("User not found", 404));
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while profile fetch",
+    });
+  }
+};
+
+// -----------------------------------------------------------------------------------------------
+
+export const searchUser = async (req, res) => {
+  try {
+    const { name = "" } = req.query;
+
+    console.log(name);
+
+    const myChats = await ChatModel.find({
+      groupChat: false,
+      members: req.user,
+    });
+
+    // console.log(myChats);
+
+    const allUsersFromMyChats = myChats.flatMap((chat) => chat.members);
+
+    console.log(allUsersFromMyChats);
+
+    const allUsersExceptMeAndFriends = await UserModel.find({
+      _id: { $nin: allUsersFromMyChats },
+      name: { $regex: name, $options: "i" },
+    });
+
+    console.log(allUsersExceptMeAndFriends);
+
+    const users = allUsersExceptMeAndFriends.map(({ _id, name, avatar }) => ({
+      _id,
+      name,
+      avatar: avatar.url,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+//--------------------------------------------------------------------
+
+export const sendFriendRequest = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+
+    console.log(userId);
+
+    const request = await RequestModel.findOne({
+      $or: [
+        { sender: req.user, receiver: userId },
+        { sender: userId, receiver: req.user },
+      ],
+    });
+
+    if (request) {
+      return res.status(400).json({
+        success: false,
+        message: "Request is already sent",
+      });
+    }
+
+    await RequestModel.create({
+      sender: req.user,
+      receiver: userId,
+    });
+
+    emitEvent(req, NEW_REQUEST, [userId]);
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend Request Sent",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+//---------------------------------------------------------------------
+
+export const acceptFriendRequest = async (req, res, next) => {
+  try {
+    const { requestId, accept } = req.body;
+
+    const request = await RequestModel.findById(requestId)
+      .populate("sender", "name")
+      .populate("receiver", "name");
+
+    console.log(request);
+
+    if (!request)
+      return res.status(404).json({
+        success: false,
+        message: "Request not found",
+      });
+
+    if (request.receiver._id.toString() !== req.user.toString())
+      return next(
+        new ErrorHandler("You are not authorized to accept this request", 401)
+      );
+
+    if (!accept) {
+      await request.deleteOne();
+
+      return res.status(200).json({
+        success: true,
+        message: "Friend Request Rejected",
+      });
+    }
+
+    const members = [request.sender._id, request.receiver._id];
+
+    await Promise.all([
+      Chat.create({
+        members,
+        name: `${request.sender.name}-${request.receiver.name}`,
+      }),
+      request.deleteOne(),
+    ]);
+
+    emitEvent(req, REFETCH_CHATS, members);
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend Request Accepted",
+      senderId: request.sender._id,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+// -----------------------------------------------------------------------------------------------
+
+export const getMyNotifications = async (req, res) => {
+  try {
+    const requests = await RequestModel.find({ receiver: req.user }).populate(
+      "sender",
+      "name avatar"
+    );
+
+    console.log(requests);
+
+    const allRequests = requests.map(({ _id, sender }) => ({
+      _id,
+      sender: {
+        _id: sender._id,
+        name: sender.name,
+        avatar: sender.avatar.url,
+      },
+    }));
+
+    return res.status(200).json({
+      success: true,
+      allRequests,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+// -----------------------------------------------------------------------------------------------
+
+export const getMyFriends = async (req, res) => {
+  try {
+    const chatId = req.query.chatId;
+
+    const chats = await ChatModel.find({
+      members: req.user,
+      groupChat: false,
+    }).populate("members", "name avatar");
+
+    const friends = chats.map(({ members }) => {
+      const getOtherMember = (members, userId) =>
+        members.find((member) => member._id.toString() !== userId.toString());
+
+      console.log(getOtherMember);
+
+      const otherUser = getOtherMember(members, req.user);
+
+      console.log(otherUser);
+
+      return {
+        _id: otherUser._id,
+        name: otherUser.name,
+        avatar: otherUser.avatar.url,
+      };
+    });
+
+    if (chatId) {
+      const chat = await ChatModel.findById(chatId);
+
+      const availableFriends = friends.filter(
+        (friend) => !chat.members.includes(friend._id)
+      );
+
+      return res.status(200).json({
+        success: true,
+        friends: availableFriends,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        friends,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
