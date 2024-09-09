@@ -2,6 +2,8 @@ import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../../services/operations/auth";
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -9,9 +11,10 @@ function LoginForm() {
     password: "",
   });
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const { email, password } = formData;
-  const navigate = useNavigate();
 
   const handleOnChange = (e) => {
     setFormData((prevData) => ({
@@ -27,17 +30,12 @@ function LoginForm() {
       return;
     }
 
-    const loginData = {
-      ...formData,
-    };
-    navigate("/");
+    dispatch(login(email, password, navigate));
 
     setFormData({
       email: "",
       password: "",
     });
-
-    console.log(loginData);
   };
 
   return (

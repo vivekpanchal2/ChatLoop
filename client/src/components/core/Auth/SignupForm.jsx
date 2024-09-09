@@ -2,29 +2,37 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import profilePhoto from "../../../assets/images/profilePic.png";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { signUp } from "../../../services/operations/auth.js";
 
 function SignupForm() {
   const [formData, setFormData] = useState({
     fullName: "",
+    userName: "",
     bio: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [profilePic, setProfilePic] = useState(profilePhoto);
+  const [profilePicFile, setProfilePicFile] = useState(null);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { fullName, bio, email, password, confirmPassword } = formData;
+  const { fullName, userName, bio, email, password, confirmPassword } =
+    formData;
 
-  // Handle input fields, when some value changes
   const handleOnChange = (e) => {
     if (e.target.name === "profilePicture" && e.target.files) {
       const file = e.target.files[0];
       const fileUrl = URL.createObjectURL(file);
       setProfilePic(fileUrl);
+      setProfilePicFile(file);
     } else {
       setFormData((prevData) => ({
         ...prevData,
@@ -37,40 +45,56 @@ function SignupForm() {
   const handleOnSubmit = (e) => {
     e.preventDefault();
 
+    if (!profilePicFile) {
+      toast.error("Please upload profile photo");
+      return;
+    }
+
     if (!/\S+@\S+\.\S+/.test(email)) {
       toast.error("invalid email id");
       return;
     }
+
+    if (password.length < 5) {
+      toast.error("Passwords is too small");
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("Passwords and Confirm Password Do Not Match");
       return;
     }
 
-    const signupData = {
-      ...formData,
-    };
+    const formData = new FormData();
 
-    // Reset form data
+    formData.append("name", fullName);
+    formData.append("username", userName);
+    formData.append("bio", bio);
+    formData.append("email", email);
+    formData.append("password", password);
+
+    if (profilePicFile) {
+      formData.append("avatar", profilePicFile);
+    }
+
+    dispatch(signUp(formData, navigate));
+
     setFormData({
       fullName: "",
+      userName: "",
       bio: "",
       email: "",
       password: "",
       confirmPassword: "",
     });
 
-    // Example of handling signup data (replace with actual signup logic)
-    console.log(signupData);
-    toast.success("Signup successful!");
+    setProfilePic(profilePhoto);
+    setProfilePicFile(null);
   };
 
   return (
     <div>
-      {/* Form */}
-      <form
-        onSubmit={handleOnSubmit}
-        className="flex w-full flex-col gap-y-4 my-1"
-      >
+      <form onSubmit={handleOnSubmit} className="flex w-full flex-col gap-y-4">
         <label className="w-full flex flex-col items-center">
           <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
             Profile Picture
@@ -101,6 +125,24 @@ function SignupForm() {
             value={fullName}
             onChange={handleOnChange}
             placeholder="Enter full name"
+            style={{
+              boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
+            }}
+            className="w-full rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5"
+          />
+        </label>
+
+        <label className="w-full">
+          <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+            UserName <sup className="text-pink-200">*</sup>
+          </p>
+          <input
+            required
+            type="text"
+            name="userName"
+            value={userName}
+            onChange={handleOnChange}
+            placeholder="Enter username"
             style={{
               boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
             }}

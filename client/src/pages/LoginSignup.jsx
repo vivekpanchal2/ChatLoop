@@ -9,10 +9,10 @@ function Login() {
   const toggleForm = () => setIsLogin((prev) => !prev);
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-gray-100 text-white">
-      <div className="flex flex-col-reverse md:flex-row w-11/12 max-w-3xl bg-richblack-700 shadow-lg rounded-lg p-8 md:p-12 gap-x-10">
-        <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start">
-          <h1 className="text-2xl flex md:hidden font-semibold text-gray-800 mb-4 w-full justify-center  border-b-2 border-richblack-500 text-center p-3">
+    <div className="flex relative my-10 w-full items-center justify-center bg-gray-100 text-white">
+      <div className="flex flex-col-reverse md:flex-row w-11/12 max-w-3xl bg-richblack-700 shadow-lg rounded-lg  md:p-12 gap-x-10  ">
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start p-3">
+          <h1 className="text-2xl flex md:hidden font-semibold text-gray-800 my-4 w-full justify-center  border-b-2 border-richblack-500 text-center p-3 ">
             {isLogin ? "Sign In to Continue" : "Welcome to ChatLoop"}
           </h1>
 
@@ -24,7 +24,7 @@ function Login() {
               className="text-white underline hover:text-yellow-25"
             >
               {isLogin
-                ? "Create an Account"
+                ? "New User? Create an Account"
                 : "Already have an account? Log In"}
             </button>
           </div>

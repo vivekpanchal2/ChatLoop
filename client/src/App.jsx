@@ -4,6 +4,7 @@ import ProtectRoute from "./components/auth/protectRoute";
 import Error from "./pages/Error";
 import Navbar from "./components/common/Navbar";
 import Loader from "./components/common/Loader";
+import { useSelector } from "react-redux";
 
 const Groups = lazy(() => import("./pages/Groups"));
 const Home = lazy(() => import("./pages/Home"));
@@ -11,9 +12,8 @@ const Login = lazy(() => import("./pages/LoginSignup"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Admin = lazy(() => import("./pages/Admin"));
 
-let user = false;
-
 function App() {
+  let { user } = useSelector((state) => state.auth);
   return (
     <div className="min-h-screen bg-white flex flex-col font-inter">
       <Navbar />

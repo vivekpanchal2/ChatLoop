@@ -12,15 +12,15 @@ import { FaBars } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import IconBtn from "../core/Navbar/IconBtn";
+import { useDispatch } from "react-redux";
+import { setToken, setUser } from "../../redux/slices/auth";
 
 const Navbar = () => {
-  //   const navigate = useNavigate();
-
   const handleMobile = () => {
     console.log("Mobile");
   };
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const openSearch = () => console.log("Search open");
 
   const openNewGroup = () => console.log("New Group");
@@ -34,13 +34,17 @@ const Navbar = () => {
   };
 
   const logoutHandler = async () => {
-    console.log("Logout");
+    dispatch(setToken(null));
+    dispatch(setUser(null));
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     toast.success("Logged out successfully");
+    navigate("/login");
   };
 
   return (
     <>
-      <div className="flex h-16 bg-black">
+      <div className="flex h-16 bg-richblack-900 ">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <h1 className=" sm:block text-white text-xl">ChatLoop</h1>
 

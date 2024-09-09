@@ -9,6 +9,9 @@ import bcrypt from "bcrypt";
 
 export const createUser = async (req, res) => {
   try {
+    console.log(req.file);
+    console.log(req.body);
+
     const { name, username, email, password, bio } = req.body;
     const file = req.file;
 

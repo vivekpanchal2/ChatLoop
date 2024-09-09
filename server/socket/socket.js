@@ -11,13 +11,24 @@ import {
   STOP_TYPING,
 } from "../constants/events.js";
 import { userSocketIDs } from "../app.js";
+import { socketAuthenticator } from "../middleware/auth.js";
+import cookieParser from "cookie-parser";
+import { corsOptions } from "../config/cors.js";
 
 export const initializeSocket = (server) => {
   const io = new Server(server);
 
   const onlineUsers = new Set();
 
+  // io.use((socket, next) => {
+  //   cookieParser()(socket.request, socket.request.res, async (err) => {
+  //     if (err) return next(err);
+  //     await socketAuthenticator(socket, next);
+  //   });
+  // });
+
   io.on("connection", (socket) => {
+    // const user = socket.user;
     const user = {
       _id: "66d3f8eba61cdb78c9436247",
       name: "Jordan Nolan",
