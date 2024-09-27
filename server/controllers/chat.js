@@ -34,10 +34,12 @@ export const newGroupChat = async (req, res) => {
       creator: req.user,
       members: allMembers,
     });
-    console.log(chat);
+    console.log("Chat response is ", chat);
+    console.log("members Are here", allMembers);
 
     emitEvent(req, ALERT, allMembers, `Welcome to ${name} group`);
-    emitEvent(req, REFETCH_CHATS, members);
+
+    emitEvent(req, REFETCH_CHATS, allMembers);
 
     return res.status(200).json({
       success: true,
@@ -210,6 +212,8 @@ export const removeMember = async (req, res) => {
   try {
     const { userId, chatId } = req.body;
 
+    console.log("removeMember server", chatId, userId);
+
     if (!userId || !chatId) {
       return res.status(400).json({
         success: false,
@@ -222,7 +226,7 @@ export const removeMember = async (req, res) => {
       UserModel.findById(userId),
     ]);
 
-    console.log({ userId, userThatWillRemoved });
+    // console.log({ userId, userThatWillRemoved });
 
     if (!chat) {
       return res.status(404).json({
@@ -263,7 +267,7 @@ export const removeMember = async (req, res) => {
     if (chat.members.length <= 3) {
       return res.status(403).json({
         success: false,
-        message: "Group Should have atleast three member",
+        message: "Group Should have atleast 3 member",
       });
     }
 
@@ -303,8 +307,7 @@ export const leaveGroup = async (req, res) => {
   try {
     const chatId = req.params.id;
 
-    console.log(req.params);
-    console.log(chatId);
+    console.log("Leaved Member", chatId);
 
     const chat = await ChatModel.findById(chatId);
 
@@ -335,8 +338,15 @@ export const leaveGroup = async (req, res) => {
 
     if (chat.creator.toString() === req.user.toString()) {
       const randomElement = Math.floor(Math.random() * remainingMembers.length);
+      console.log("randomElement : ", randomElement);
+      console.log("remaining ones : ", remainingMembers);
+
       const newCreator = remainingMembers[randomElement];
+
+      console.log({ newCreator });
+
       chat.creator = newCreator;
+      console.log("New Creator asigned:", chat.creator);
     }
 
     chat.members = remainingMembers;
@@ -369,10 +379,12 @@ export const leaveGroup = async (req, res) => {
 export const sendAttachments = async (req, res) => {
   try {
     const { chatId } = req.body;
+    console.log(chatId);
 
+    console.log(req.files);
     const files = req.files || [];
 
-    console.log({ files, chatId });
+    // console.log({ files, chatId });
 
     if (files.length < 1) {
       return res.status(400).json({
@@ -422,12 +434,22 @@ export const sendAttachments = async (req, res) => {
       },
     };
 
-    emitEvent(req, NEW_MESSAGE, chat.members, {
+    console.log(chat.members);
+    const members = chat.members;
+    console.log(members);
+
+    const memberList = members.map((member) => {
+      return member.toString();
+    });
+
+    console.log(memberList);
+
+    emitEvent(req, NEW_MESSAGE, memberList, {
       message: messageForRealTime,
       chatId,
     });
 
-    emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId });
+    emitEvent(req, NEW_MESSAGE_ALERT, memberList, { chatId });
 
     return res.status(200).json({
       success: true,
@@ -447,6 +469,8 @@ export const sendAttachments = async (req, res) => {
 // if populate true then it will populate the member details
 export const getChatDetails = async (req, res, next) => {
   try {
+    console.log(req.params);
+
     if (req.query.populate === "true") {
       const chat = await ChatModel.findById(req.params.id)
         .populate("members", "name avatar")
@@ -557,6 +581,8 @@ export const deleteChat = async (req, res) => {
   try {
     const chatId = req.params.id;
 
+    console.log(chatId);
+    console.log(req.params);
     const chat = await ChatModel.findById(chatId);
 
     if (!chat) {
@@ -568,17 +594,14 @@ export const deleteChat = async (req, res) => {
 
     const members = chat.members;
 
-    if (!chat.groupChat) {
-      return res.status(400).json({
+    if (chat.groupChat && chat.creator.toString() !== req.user.toString()) {
+      return res.status(403).json({
         success: false,
-        message: "This is not group chat",
+        message: "You are not allowed to delete this group",
       });
     }
 
-    if (
-      !chat.members.includes(req.user.toString()) ||
-      chat.creator.toString() !== req.user.toString()
-    ) {
+    if (!chat.groupChat && !chat.members.includes(req.user.toString())) {
       return res.status(403).json({
         success: false,
         message: "You are not allowed to Delete group",
@@ -602,7 +625,10 @@ export const deleteChat = async (req, res) => {
       MessageModel.deleteMany({ chat: chatId }),
     ]);
 
-    emitEvent(req, REFETCH_CHATS, members);
+    const membersForEmit = members.map((member) => member.toString());
+    console.log(membersForEmit);
+
+    emitEvent(req, REFETCH_CHATS, membersForEmit);
 
     return res.status(200).json({
       success: true,

@@ -1,7 +1,14 @@
 import { userSocketIDs } from "../app.js";
 
 export const getSockets = (users = []) => {
-  const sockets = users.map((user) => userSocketIDs.get(user.toString()));
+  console.log({ users, userSocketIDs });
+
+  // Check if users array contains objects or strings
+  const sockets = users.map((user) => {
+    // If user is an object, use user._id, otherwise use the user directly
+    const userId = typeof user === "object" ? user._id : user;
+    return userSocketIDs.get(userId);
+  });
 
   return sockets;
 };

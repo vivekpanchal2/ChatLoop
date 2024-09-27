@@ -1,4 +1,4 @@
-const adminSecretKey = process.env.ADMIN_SECRET_KEY || "adminTheLeader";
+const adminSecretKey = process.env.ADMIN_SECRET_KEY || "lord";
 
 import { ChatModel } from "../models/chatModel.js";
 import { MessageModel } from "../models/messageModel.js";
@@ -116,8 +116,6 @@ export const getAllChats = async (req, res) => {
       .populate("members", "name avatar")
       .populate("creator", "name avatar");
 
-    console.log(chats);
-
     const transformedChats = await Promise.all(
       chats.map(async ({ members, _id, groupChat, name, creator }) => {
         const totalMessages = await MessageModel.countDocuments({ chat: _id });
@@ -133,8 +131,8 @@ export const getAllChats = async (req, res) => {
             avatar: avatar.url,
           })),
           creator: {
-            name: creator?.name || "None",
-            avatar: creator?.avatar.url || "",
+            name: creator?.name || "-",
+            avatar: creator?.avatar.url || "-",
           },
           totalMembers: members.length,
           totalMessages,
@@ -142,8 +140,10 @@ export const getAllChats = async (req, res) => {
       })
     );
 
+    console.log("Hereeeeeeeeeeee");
+
     return res.status(200).json({
-      status: "success",
+      success: true,
       chats: transformedChats,
     });
   } catch (error) {
@@ -161,18 +161,20 @@ export const getAllMessages = async (req, res) => {
       .populate("sender", "name avatar")
       .populate("chat", "groupChat");
 
+    console.log(messages.length);
+
     const transformedMessages = messages.map(
       ({ content, attachments, _id, sender, createdAt, chat }) => ({
         _id,
         attachments,
         content,
         createdAt,
-        chat: chat._id,
-        groupChat: chat.groupChat,
+        chat: chat?._id,
+        groupChat: chat?.groupChat,
         sender: {
-          _id: sender._id,
-          name: sender.name,
-          avatar: sender.avatar.url,
+          _id: sender?._id,
+          name: sender?.name,
+          avatar: sender?.avatar?.url,
         },
       })
     );

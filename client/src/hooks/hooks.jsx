@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
+import { debounce } from "lodash";
 
 export const useErrors = (errors = []) => {
   useEffect(() => {
@@ -49,10 +50,8 @@ export const useAsyncMutation = (mutationHook) => {
   return [executeMutation, isLoading, data];
 };
 
-export const useSocketEvents = (socket, handlers = {}) => {
+export const useSocketEvents = (socket, handlers) => {
   useEffect(() => {
-    if (!socket) return;
-
     Object.entries(handlers).forEach(([event, handler]) => {
       socket.on(event, handler);
     });
@@ -63,4 +62,62 @@ export const useSocketEvents = (socket, handlers = {}) => {
       });
     };
   }, [socket, handlers]);
+};
+
+export const useInfiniteScrollTop = (
+  containerRef,
+  totalPages,
+  currentPage,
+  setPage,
+  initialMessages
+) => {
+  const [data, setData] = useState(initialMessages ? [...initialMessages] : []);
+  const [isFetching, setIsFetching] = useState(false);
+
+  const prependMessages = useCallback((newMessages) => {
+    setData((prevMessages) => {
+      const uniqueMessages = new Map();
+
+      prevMessages.forEach((msg) => uniqueMessages.set(msg._id, msg));
+
+      newMessages.forEach((msg) => uniqueMessages.set(msg._id, msg));
+
+      return [...uniqueMessages.values()].sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+    });
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || currentPage >= totalPages || isFetching)
+      return;
+
+    const { scrollTop } = containerRef.current;
+
+    if (scrollTop === 0) {
+      setIsFetching(true);
+      setPage(currentPage + 1);
+    }
+  }, [containerRef, currentPage, totalPages, setPage, isFetching]);
+
+  useEffect(() => {
+    const ref = containerRef.current;
+
+    if (ref) {
+      ref.addEventListener("scroll", handleScroll);
+
+      return () => {
+        ref.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, [containerRef, handleScroll]);
+
+  useEffect(() => {
+    if (initialMessages && initialMessages.length) {
+      prependMessages(initialMessages);
+    }
+    setIsFetching(false);
+  }, [initialMessages, prependMessages]);
+
+  return { data, setData };
 };

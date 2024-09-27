@@ -8,6 +8,9 @@ const initialState = {
   token: localStorage.getItem("token")
     ? JSON.parse(localStorage.getItem("token"))
     : null,
+  isAdmin: localStorage.getItem("forbiddenZone")
+    ? JSON.parse(localStorage.getItem("forbiddenZone"))
+    : false,
 };
 
 const authSlice = createSlice({
@@ -23,9 +26,12 @@ const authSlice = createSlice({
     setUser(state, action) {
       state.user = action.payload;
     },
+    setIsAdmin(state, action) {
+      state.isAdmin = action.payload;
+    },
   },
 });
 
-export const { setLoading, setToken, setUser } = authSlice.actions;
+export const { setLoading, setToken, setUser, setIsAdmin } = authSlice.actions;
 
 export default authSlice.reducer;

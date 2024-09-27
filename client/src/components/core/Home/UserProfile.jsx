@@ -6,7 +6,7 @@ const UserProfile = () => {
   const { user } = useSelector((state) => state.auth);
 
   return (
-    <div className="flex flex-col items-center p-6 bg-gray-100 rounded-lg shadow-lg w-full max-w-lg mx-auto overflow-hidden">
+    <div className="flex flex-col items-center bg-gray-100 rounded-lg shadow-lg w-full max-w-lg  overflow-hidden h-[calc(100vh-5rem)]">
       <img
         src={user?.avatar?.url}
         alt="Avatar"

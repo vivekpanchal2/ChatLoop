@@ -12,14 +12,14 @@ import {
 
 const router = express.Router();
 
-router.get("/adminLogin", adminLogin);
+router.post("/adminLogin", adminLogin);
 router.use(adminOnly);
 
 router.get("/getAllUsers", getAllUsers);
-router.get("/adminLogout", adminLogout);
 router.get("/getAdminData", getAdminData);
 router.get("/getAllChats", getAllChats);
 router.get("/getAllMessages", getAllMessages);
 router.get("/getDashboardStats", getDashboardStats);
+router.post("/adminLogout", adminLogout);
 
 export default router;

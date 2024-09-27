@@ -41,7 +41,6 @@ function SignupForm() {
     }
   };
 
-  // Handle Form Submission
   const handleOnSubmit = (e) => {
     e.preventDefault();
 

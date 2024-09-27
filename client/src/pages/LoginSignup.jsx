@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import LoginForm from "../components/core/Auth/LoginForm.jsx";
-import SignupForm from "../components/core/Auth/SignupForm.jsx"; // Ensure you import SignupForm
+import SignupForm from "../components/core/Auth/SignupForm.jsx";
 import img from "../assets/images/img.png";
 
 function Login() {
@@ -9,9 +9,14 @@ function Login() {
   const toggleForm = () => setIsLogin((prev) => !prev);
 
   return (
-    <div className="flex relative my-10 w-full items-center justify-center bg-gray-100 text-white">
-      <div className="flex flex-col-reverse md:flex-row w-11/12 max-w-3xl bg-richblack-700 shadow-lg rounded-lg  md:p-12 gap-x-10  ">
-        <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start p-3">
+    <div className="flex flex-col relative w-full items-center justify-center bg-gray-100 text-white h-screen gap-4">
+      <div className="text-black text-xl md:text-2xl lg:text-2xl">
+        Welcome to ChatX
+      </div>
+      <div
+        className={`flex flex-col-reverse md:flex-row w-11/12 max-w-3xl bg-richblack-700 shadow-lg rounded-lg  md:p-12 gap-x-10`}
+      >
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start p-6">
           <h1 className="text-2xl flex md:hidden font-semibold text-gray-800 my-4 w-full justify-center  border-b-2 border-richblack-500 text-center p-3 ">
             {isLogin ? "Sign In to Continue" : "Welcome to ChatLoop"}
           </h1>

@@ -9,7 +9,11 @@ import chatRoutes from "./routes/chat.js";
 import adminRoutes from "./routes/admin.js";
 import { initializeSocket } from "./socket/socket.js";
 
+import { createSingleChats } from "./seeder/chat.js";
+
 dotenv.config();
+
+console.log("yo");
 
 import { cloudinaryConnect } from "./config/cloudinary.js";
 import { connectDB } from "./config/databse.js";
@@ -23,7 +27,9 @@ const port = process.env.PORT || 3000;
 
 connectDB();
 cloudinaryConnect();
-initializeSocket(server);
+
+const io = initializeSocket(server);
+app.set("io", io);
 
 app.use(cookieParser());
 app.use(express.json());

@@ -26,10 +26,12 @@ router.post("/removeMember", removeMember);
 router.get("/getMyChats", getMyChats);
 router.get("/getMyGroups", getMyGroups);
 router.delete("/leaveGroup/:id", leaveGroup);
+
 router.post("/sendAttachments", attachmentsMulter, sendAttachments);
-router.post("/:id", getChatDetails);
+router.get("/:id", getChatDetails);
 router.post("/renameGroup/:id", handleFormData, renameGroup);
 router.delete("/deleteChat/:id", deleteChat);
+
 router.get("/getMessage/:id", getMessages);
 
 export default router;

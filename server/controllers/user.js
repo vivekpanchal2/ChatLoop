@@ -3,6 +3,7 @@ import { UserModel } from "../models/userModel.js";
 import { ChatModel } from "../models/chatModel.js";
 import { RequestModel } from "../models/requestModel.js";
 import { emitEvent } from "../utils/features.js";
+import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
 
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -186,25 +187,23 @@ export const searchUser = async (req, res) => {
   try {
     const { name = "" } = req.query;
 
-    console.log(name);
+    console.log({ name, me: req.user });
 
     const myChats = await ChatModel.find({
       groupChat: false,
       members: req.user,
     });
 
-    // console.log(myChats);
-
     const allUsersFromMyChats = myChats.flatMap((chat) => chat.members);
 
-    console.log(allUsersFromMyChats);
+    const excludedUsers = [...allUsersFromMyChats, req.user];
 
     const allUsersExceptMeAndFriends = await UserModel.find({
-      _id: { $nin: allUsersFromMyChats },
+      _id: { $nin: excludedUsers },
       name: { $regex: name, $options: "i" },
     });
 
-    console.log(allUsersExceptMeAndFriends);
+    // console.log(allUsersExceptMeAndFriends);
 
     const users = allUsersExceptMeAndFriends.map(({ _id, name, avatar }) => ({
       _id,
@@ -212,9 +211,16 @@ export const searchUser = async (req, res) => {
       avatar: avatar.url,
     }));
 
+    // console.log(users);
+
+    const pendingRequest = await RequestModel.find({
+      sender: req.user,
+    }).select("receiver");
+
     return res.status(200).json({
       success: true,
       users,
+      pendingRequest,
     });
   } catch (error) {
     console.log(error);
@@ -232,6 +238,7 @@ export const sendFriendRequest = async (req, res, next) => {
   try {
     const { userId } = req.body;
 
+    console.log(req.body);
     console.log(userId);
 
     const request = await RequestModel.findOne({
@@ -269,11 +276,48 @@ export const sendFriendRequest = async (req, res, next) => {
   }
 };
 
+//--------------------------------------------------------------------
+
+export const cancelSendFriendRequest = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+
+    console.log(userId);
+
+    if (!userId) {
+      res.status(404).json({
+        success: false,
+        message: "User Id is required",
+      });
+    }
+
+    const request = await RequestModel.findOneAndDelete({
+      sender: req.user,
+      receiver: userId,
+    });
+    console.log(request);
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend Request cancelled successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 //---------------------------------------------------------------------
 
 export const acceptFriendRequest = async (req, res, next) => {
   try {
     const { requestId, accept } = req.body;
+
+    console.log(req.body);
 
     const request = await RequestModel.findById(requestId)
       .populate("sender", "name")
@@ -301,10 +345,13 @@ export const acceptFriendRequest = async (req, res, next) => {
       });
     }
 
-    const members = [request.sender._id, request.receiver._id];
+    const members = [
+      request.sender._id.toString(),
+      request.receiver._id.toString(),
+    ];
 
     await Promise.all([
-      Chat.create({
+      ChatModel.create({
         members,
         name: `${request.sender.name}-${request.receiver.name}`,
       }),

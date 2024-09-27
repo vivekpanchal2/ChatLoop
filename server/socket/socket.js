@@ -1,4 +1,4 @@
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
 import { MessageModel } from "../models/messageModel.js";
 import {
@@ -14,25 +14,26 @@ import { userSocketIDs } from "../app.js";
 import { socketAuthenticator } from "../middleware/auth.js";
 import cookieParser from "cookie-parser";
 import { corsOptions } from "../config/cors.js";
+import { getSockets } from "../utils/helper.js";
 
 export const initializeSocket = (server) => {
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: corsOptions,
+  });
 
   const onlineUsers = new Set();
 
-  // io.use((socket, next) => {
-  //   cookieParser()(socket.request, socket.request.res, async (err) => {
-  //     if (err) return next(err);
-  //     await socketAuthenticator(socket, next);
-  //   });
-  // });
+  io.use((socket, next) => {
+    cookieParser()(socket.request, socket.request.res, async (err) => {
+      if (err) return next(err);
+      await socketAuthenticator(socket, next);
+    });
+  });
 
   io.on("connection", (socket) => {
-    // const user = socket.user;
-    const user = {
-      _id: "66d3f8eba61cdb78c9436247",
-      name: "Jordan Nolan",
-    };
+    const user = socket.user;
+
+    console.log({ user: user._id, socket: socket.id });
 
     userSocketIDs.set(user._id.toString(), socket.id);
 
@@ -56,11 +57,15 @@ export const initializeSocket = (server) => {
       };
 
       const membersSocket = getSockets(members);
-      io.to(membersSocket).emit(NEW_MESSAGE, {
-        chatId,
-        message: messageForRealTime,
+
+      membersSocket.forEach((socketId) => {
+        io.to(socketId).emit(NEW_MESSAGE, {
+          chatId,
+          message: messageForRealTime,
+        });
+
+        io.to(socketId).emit(NEW_MESSAGE_ALERT, { chatId });
       });
-      io.to(membersSocket).emit(NEW_MESSAGE_ALERT, { chatId });
 
       try {
         await MessageModel.create(messageForDB);
@@ -71,6 +76,7 @@ export const initializeSocket = (server) => {
 
     socket.on(START_TYPING, ({ members, chatId }) => {
       const membersSockets = getSockets(members);
+      console.log(membersSockets);
       socket.to(membersSockets).emit(START_TYPING, { chatId });
     });
 

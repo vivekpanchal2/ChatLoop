@@ -1,24 +1,35 @@
 import React from "react";
-import ChatList from "../components/core/Home/ChatList";
-import ChatWindow from "../components/core/Home/ChatWindow";
-import UserProfile from "../components/core/Home/userProfile";
+import AppLayout from "../components/layout/AppLayout";
+import { FaSearch } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsSearch } from "../redux/slices/misc";
 
 function Home() {
+  const dispatch = useDispatch();
+
   return (
-    <div className="flex flex-row">
-      <div className="hidden min-[500px]:block w-3/6 h-[calc(100vh-4rem)] bg-richblack-500 p-4">
-        <ChatList />
+    <>
+      <div className="flex flex-col justify-center items-center h-[calc(100%-20px)] gap-20 overflow-hidden">
+        <div className="p-5 flex flex-col gap-3">
+          <div className="text-4xl">Welcome to ChatX</div>
+          <div className="text-lg text-center">
+            Select a friend to start chatting,
+          </div>
+        </div>
+        <div className="p-5 flex flex-col gap-3 w-1/2 ">
+          <div className="text-center ">No Friends? Don't Worry</div>
+          <div
+            className="border-2 p-3 flex flex-row gap-2 justify-center items-center rounded-3xl cursor-pointer"
+            onClick={() => dispatch(setIsSearch(true))}
+          >
+            <FaSearch />
+            Find Friends
+          </div>
+        </div>
       </div>
-
-      <div className="w-full h-[calc(100vh-4rem)] bg-richblack-800 p-4">
-        <ChatWindow />
-      </div>
-
-      <div className="hidden lg:block w-2/6 h-[calc(100vh-4rem)] bg-richblack-500 p-4">
-        <UserProfile />
-      </div>
-    </div>
+      <div>Crafted With ❤️ By Vivek Panchal</div>
+    </>
   );
 }
 
-export default Home;
+export default AppLayout(Home);

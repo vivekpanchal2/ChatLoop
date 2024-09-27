@@ -10,6 +10,7 @@ import {
   getMyNotifications,
   acceptFriendRequest,
   getMyFriends,
+  cancelSendFriendRequest,
 } from "../controllers/user.js";
 import { singleAvatar } from "../middleware/multer.js";
 import { isAuthenticated } from "../middleware/auth.js";
@@ -26,6 +27,9 @@ router.get("/getMyProfile", getMyProfile);
 router.get("/searchUser", searchUser);
 
 router.post("/sendFriendRequest", sendFriendRequest);
+
+router.delete("/cancelSendFriendRequest", cancelSendFriendRequest);
+
 router.get("/getMyNotifications", getMyNotifications);
 router.post("/acceptFriendRequest", acceptFriendRequest);
 router.get("/getMyFriends", getMyFriends);

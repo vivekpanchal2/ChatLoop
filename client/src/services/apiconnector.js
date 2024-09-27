@@ -8,9 +8,10 @@ export const apiConnector = async (
   method,
   url,
   bodyData = null,
-  params = null,
+  params = null, //for Query params
   headers = null
 ) => {
+  console.log({ bodyData, url });
   try {
     const response = await axiosInstance({
       method: method.toUpperCase(),
@@ -21,7 +22,10 @@ export const apiConnector = async (
     });
     return response.data;
   } catch (error) {
-    console.error("API call error:", error.response || error.message);
+    console.error(
+      "API call error:",
+      error.response || error?.response?.data?.message
+    );
     throw error;
   }
 };
