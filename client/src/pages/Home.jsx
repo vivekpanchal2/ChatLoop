@@ -27,7 +27,9 @@ function Home() {
           </div>
         </div>
       </div>
-      <div>Crafted With ❤️ By Vivek Panchal</div>
+      <div className="flex align-middle justify-center">
+        Crafted With ❤️ By Vivek Panchal
+      </div>
     </>
   );
 }

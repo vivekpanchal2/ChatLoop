@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from "react";
 const ConfirmDeleteDialog = ({ handleClose, deleteHandler }) => {
   const dialogRef = useRef(null);
 
-  // Close the dialog when clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dialogRef.current && !dialogRef.current.contains(event.target)) {

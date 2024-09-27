@@ -13,12 +13,12 @@ const ChatItem = ({
   newMessageAlert,
   index = 0,
   handleDeleteChat,
-  onChatClick, // Destructure the onChatClick prop
+  onChatClick,
 }) => {
   return (
     <div
-      onClick={onChatClick} // Handle chat selection
-      className="block cursor-pointer relative" // Ensure it’s clickable and create a relative container
+      onClick={onChatClick}
+      className="block cursor-pointer relative"
     >
       <Link
         to={`/chat/${_id}`}

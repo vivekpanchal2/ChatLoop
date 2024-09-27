@@ -21,9 +21,7 @@ import Navbar from "../components/common/Navbar";
 import { MdDelete, MdKeyboardBackspace } from "react-icons/md";
 import toast from "react-hot-toast";
 
-// const ConfirmDeleteDialog = lazy(() =>
-//   import("../components/dialogs/ConfirmDeleteDialog")
-// );
+
 import ConfirmDeleteDialog from "../components/dialogs/ConfirmDeleteDialog";
 
 const AddMemberDialog = lazy(() =>

@@ -37,11 +37,7 @@ const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
     navigate("/");
   };
 
-  // useEffect(() => {
-  //   if (leaveGroupData) navigate("/");
-  // }, [leaveGroupData]);
 
-  // Close the menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -55,15 +51,13 @@ const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
 
   return (
     <>
-      {/* Backdrop with blur effect */}
       {isDeleteMenu && (
         <div
           className="fixed inset-0 z-40 backdrop-blur-sm bg-black bg-opacity-50"
-          onClick={closeHandler} // Clicking on backdrop will close the menu
+          onClick={closeHandler} 
         />
       )}
 
-      {/* Delete Chat Menu */}
       <div
         ref={menuRef}
         className={`fixed z-50 bg-white shadow-lg rounded-md transition-opacity duration-300 transform ${

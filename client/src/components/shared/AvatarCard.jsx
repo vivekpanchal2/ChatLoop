@@ -12,7 +12,7 @@ const AvatarCard = ({ avatar = [], max = 4 }) => {
             alt={`Avatar ${index}`}
             className="absolute w-12 h-12 rounded-full object-cover"
             style={{
-              left: `${index * 12}px`, // adjust spacing between avatars
+              left: `${index * 12}px`,
             }}
           />
         ))}

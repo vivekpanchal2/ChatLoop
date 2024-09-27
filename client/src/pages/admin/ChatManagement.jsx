@@ -4,7 +4,7 @@ import AvatarCard from "../../components/shared/AvatarCard";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllChats } from "../../services/operations/admin";
 import { transformImage } from "../../lib/features";
-import Table from "../../components/shared/Table"; // Import the reusable Table component
+import Table from "../../components/shared/Table"; 
 
 const columns = [
   {

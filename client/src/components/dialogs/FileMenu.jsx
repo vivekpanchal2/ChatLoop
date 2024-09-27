@@ -20,7 +20,7 @@ const FileMenu = ({ chatId }) => {
   const audioRef = useRef(null);
   const videoRef = useRef(null);
   const fileRef = useRef(null);
-  const menuRef = useRef(null); // Reference to the FileMenu container
+  const menuRef = useRef(null);
 
   const closeFileMenu = () => dispatch(setIsFileMenu(false));
 
@@ -61,7 +61,6 @@ const FileMenu = ({ chatId }) => {
     }
   };
 
-  // Handle closing the menu when clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {

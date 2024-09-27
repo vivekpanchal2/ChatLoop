@@ -43,7 +43,7 @@ const ChatList = ({
             groupChat={groupChat}
             sameSender={chatId === _id}
             handleDeleteChat={handleDeleteChat}
-            onChatClick={onChatClick} // Pass the handler to ChatItem
+            onChatClick={onChatClick} 
           />
         );
       })}

@@ -78,7 +78,7 @@ const NewGroup = () => {
     >
       <div
         className="bg-white p-8 w-96 rounded-lg shadow-lg relative"
-        onClick={(e) => e.stopPropagation()} // Prevent click inside the modal from closing it
+        onClick={(e) => e.stopPropagation()} 
       >
         <h2 className="text-center text-2xl font-bold mb-6">New Group</h2>
 

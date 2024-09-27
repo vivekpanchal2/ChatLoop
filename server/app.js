@@ -9,8 +9,6 @@ import chatRoutes from "./routes/chat.js";
 import adminRoutes from "./routes/admin.js";
 import { initializeSocket } from "./socket/socket.js";
 
-import { createSingleChats } from "./seeder/chat.js";
-
 dotenv.config();
 
 console.log("yo");

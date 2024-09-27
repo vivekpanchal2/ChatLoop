@@ -12,7 +12,6 @@ export function signUp(formData, navigate) {
     dispatch(setLoading(true));
 
     try {
-      // Debugging: log formData for verification
       console.log("FormData being sent:", formData);
 
       const response = await apiConnector(

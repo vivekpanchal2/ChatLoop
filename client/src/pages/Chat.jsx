@@ -53,7 +53,7 @@ const Chat = ({ chatId, user }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const containerRef = useRef(null); // Reference for message container
+  const containerRef = useRef(null); 
   const typingTimeout = useRef(null);
 
   const [message, setMessage] = useState("");
