@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { sampleUsers } from "../../constants/sampleData";
 import UserItem from "../shared/UserItem";
-import {
-  useAddGroupMembersMutation,
-  useAvailableFriendsQuery,
-} from "../../redux/api/api";
 import { getMyFriends } from "../../services/operations/friend";
 import { addGroupMember } from "../../services/operations/groups";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsAddMember } from "../../redux/slices/misc";
-
-import { useAsyncMutation, useErrors } from "../../hooks/hooks";
 
 const AddMemberDialog = ({ chatId, getGroupDetailsData }) => {
   const dispatch = useDispatch();

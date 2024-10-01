@@ -10,7 +10,6 @@ const isAuthenticated = async (req, res, next) => {
 
     try {
       const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-      // console.log(decoded);
       req.user = decoded.id;
       next();
     } catch (error) {
@@ -32,7 +31,6 @@ const adminOnly = (req, res, next) => {
   const adminSecretKey = "lord";
 
   if (!token)
-    
     return res.status(403).json({
       success: false,
       message: "Only Admin can access this route",
@@ -58,8 +56,6 @@ const socketAuthenticator = async (socket, next) => {
       return next(new Error("Authentication token is missing"));
     }
 
-    // console.log({ authToken, token: process.env.JWT_SECRET });
-
     if (!process.env.JWT_SECRET) {
       console.error("JWT_SECRET is missing in environment configuration");
       return next(new Error("Internal server error"));
@@ -68,7 +64,6 @@ const socketAuthenticator = async (socket, next) => {
     const decodedData = await jwt.verify(authToken, process.env.JWT_SECRET);
 
     const user = await UserModel.findById(decodedData.id);
-    // console.log({ user, decodedData });
 
     if (!user) {
       return next(new Error("Invalid token or user does not exist"));

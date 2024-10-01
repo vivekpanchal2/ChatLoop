@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  useAvailableFriendsQuery,
-  useNewGroupMutation,
-} from "../../redux/api/api";
-import { useAsyncMutation, useErrors } from "../../hooks/hooks";
+
 import { setIsNewGroup } from "../../redux/slices/misc";
 import toast from "react-hot-toast";
 import UserItem from "../shared/UserItem";
@@ -78,7 +74,7 @@ const NewGroup = () => {
     >
       <div
         className="bg-white p-8 w-96 rounded-lg shadow-lg relative"
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-center text-2xl font-bold mb-6">New Group</h2>
 

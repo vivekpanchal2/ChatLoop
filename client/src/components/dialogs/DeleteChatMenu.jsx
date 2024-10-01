@@ -2,11 +2,9 @@ import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { setIsDeleteMenu } from "../../redux/slices/misc";
 import { useNavigate } from "react-router-dom";
-import { useAsyncMutation } from "../../hooks/hooks";
 import { FaTrashAlt, FaSignOutAlt } from "react-icons/fa";
 import { deleteChat, leaveGroup } from "../../services/operations/chat";
 import toast from "react-hot-toast";
-import { useLeaveGroupMutation } from "../../redux/api/api";
 
 const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
   const navigate = useNavigate();
@@ -37,7 +35,6 @@ const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
     navigate("/");
   };
 
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -54,7 +51,7 @@ const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
       {isDeleteMenu && (
         <div
           className="fixed inset-0 z-40 backdrop-blur-sm bg-black bg-opacity-50"
-          onClick={closeHandler} 
+          onClick={closeHandler}
         />
       )}
 

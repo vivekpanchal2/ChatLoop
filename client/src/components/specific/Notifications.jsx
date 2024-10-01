@@ -1,7 +1,5 @@
 import React, { memo, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useAsyncMutation, useErrors } from "../../hooks/hooks";
-import { useAcceptFriendRequestMutation } from "../../redux/api/api";
 import { setIsNotification } from "../../redux/slices/misc";
 import {
   getNotifications,
@@ -35,7 +33,6 @@ const Notifications = () => {
   const dispatch = useDispatch();
   const { isNotification } = useSelector((state) => state.misc);
   const { isLoading, data, error, isError } = useFetchNotifications();
-  const [acceptRequest] = useAsyncMutation(useAcceptFriendRequestMutation);
 
   const friendRequestHandler = async ({ _id, accept }) => {
     dispatch(setIsNotification(false));
@@ -48,7 +45,6 @@ const Notifications = () => {
   };
 
   const closeHandler = () => dispatch(setIsNotification(false));
-  useErrors([{ error, isError }]);
 
   if (!isNotification) return null;
 
